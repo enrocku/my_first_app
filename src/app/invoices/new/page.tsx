@@ -1,14 +1,11 @@
-import { sql } from "drizzle-orm"
-import { db } from "@/app/db"
+"use client";
+
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { createInvoice } from "@/app/actions"
 
-export default async function CreateInvoice() {
-    const result = await db.execute(sql`SELECT current_database()`);
-    console.log('Current database:', result);
-
+export default function CreateInvoice() {
     return (
         <div className="min-h-screen p-8">
             <main className="pt-24 px-20">
