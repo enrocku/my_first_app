@@ -1,9 +1,17 @@
 import Image from "next/image";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
+    <div className="min-h-screen flex items-center justify-center">
+      <main className="flex flex-col items-center gap-6">
+        <h1 className="text-4xl font-bold text-center">
+          Hi! Welcome to my app :)
+        </h1>
+        <Button asChild>
+          <Link href="/dashboard">sign in</Link>
+        </Button>
       </main>
     </div>
   );
