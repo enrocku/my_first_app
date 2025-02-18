@@ -2,36 +2,45 @@ import {
     Table,
     TableBody,
     TableCaption,
-    TableCell,
     TableHead,
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Fingerprint } from "lucide-react"
 import Link from "next/link"
+import { db } from "@/app/db"
+import { invoices } from "@/app/db/schema"
+import { desc } from "drizzle-orm"
+import { InvoiceRow } from "@/components/invoice-row"
+import { sql } from "drizzle-orm"
 
-const customers = [
-    {
-        date: "2024-08-09",
-        customer: "Philip J. Fry",
-        email: "fry@planetexpress.com",
-        description: "Planet Express Delivery Service",
-        status: "Open",
-        value: "$1,337.00",
-    },
-    {
-        date: "2024-08-09",
-        customer: "Bender Rodriguez",
-        email: "bender@planetexpress.com",
-        description: "Robot Maintenance",
-        status: "Open",
-        value: "$12.34",
-    },
-]
+// Define the type for raw database row
+interface RawInvoiceRow {
+    id: number;
+    date: string;
+    description: string;
+    value: string;
+    status: 'Open' | 'Paid' | 'Void' | 'Uncollectible';
+    [key: string]: unknown;  // Add index signature
+}
 
-export default function Dashboard() {
+export default async function Dashboard() {
+    // Use raw SQL query to get the data correctly
+    const rawResult = await db.execute(
+        sql`SELECT * FROM invoices ORDER BY date DESC, id DESC`
+    );
+
+    const invoiceData = rawResult.rows.map(row => ({
+        id: Number(row.id),
+        date: new Date(row.date as string), // Add type assertion for date
+        description: String(row.description), // Convert to string
+        value: String(row.value), // Convert to string
+        status: row.status as 'Open' | 'Paid' | 'Void' | 'Uncollectible'
+    }));
+
+    console.log('Parsed invoice data:', invoiceData[0]);
+
     return (
         <div className="min-h-screen p-8">
             <main className="pt-24 px-20">
@@ -48,34 +57,21 @@ export default function Dashboard() {
                 </div>
 
                 <Table>
-                    <TableCaption>Customer Information</TableCaption>
+                    <TableCaption>Invoice Information</TableCaption>
                     <TableHeader>
                         <TableRow>
                             <TableHead className="text-left">Date</TableHead>
-                            <TableHead className="text-left">Customer</TableHead>
-                            <TableHead className="text-left">Email</TableHead>
                             <TableHead className="text-left">Description</TableHead>
                             <TableHead className="text-center">Status</TableHead>
                             <TableHead className="text-right">Value</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {customers.map((customer) => (
-                            <TableRow key={customer.email}>
-                                <TableCell className="text-left font-bold py-4">{customer.date}</TableCell>
-                                <TableCell className="text-left font-bold py-4">{customer.customer}</TableCell>
-                                <TableCell className="text-left py-4">{customer.email}</TableCell>
-                                <TableCell className="text-left py-4">{customer.description}</TableCell>
-                                <TableCell className="text-center py-4">
-                                    <Badge
-                                        className="bg-[#4169E1] text-white hover:bg-[#4169E1]/90 rounded-full"
-                                        variant="secondary"
-                                    >
-                                        {customer.status}
-                                    </Badge>
-                                </TableCell>
-                                <TableCell className="text-right py-4">{customer.value}</TableCell>
-                            </TableRow>
+                        {invoiceData.map((invoice) => (
+                            <InvoiceRow
+                                key={invoice.id.toString()}
+                                invoice={invoice}
+                            />
                         ))}
                     </TableBody>
                 </Table>

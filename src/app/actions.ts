@@ -6,8 +6,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from 'next/navigation'
 
 export async function createInvoice(formData: FormData): Promise<void> {
-    // Get all form fields
-    const date = formData.get('date');
+    // Get form fields (excluding date)
     const description = formData.get('description');
     const rawValue = formData.get('value');
     const name = formData.get('name');
@@ -15,7 +14,6 @@ export async function createInvoice(formData: FormData): Promise<void> {
 
     // Log the raw data
     console.log('Raw Form Data:', {
-        date,
         description,
         value: rawValue,
         name,
@@ -23,7 +21,7 @@ export async function createInvoice(formData: FormData): Promise<void> {
     });
 
     // Validate that all fields exist
-    if (!date || !description || !rawValue || !name || !email) {
+    if (!description || !rawValue || !name || !email) {
         console.error('Missing required fields');
         throw new Error('All fields are required');
     }
@@ -39,12 +37,12 @@ export async function createInvoice(formData: FormData): Promise<void> {
     console.log('Value as float:', valueInCents / 100);
 
     try {
-        // Insert into database
+        // Insert into database with current date
         const newInvoice = await db.insert(invoices).values({
-            date: new Date(date.toString()).toISOString().split('T')[0], // Format as YYYY-MM-DD
+            date: new Date(), // Pass the Date object directly
             description: description.toString(),
-            value: (valueInCents / 100).toString(), // Convert to string since schema expects string
-            status: 'Open'  // Default status
+            value: (valueInCents / 100).toString(),
+            status: 'Open'
         }).returning({ id: invoices.id });
 
         console.log('New invoice created:', newInvoice);

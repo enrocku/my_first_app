@@ -1,9 +1,9 @@
 "use client";
 
 import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { createInvoice } from "@/app/actions"
+import { SubmitButton } from "@/components/ui/submit-button"
 
 export default function CreateInvoice() {
     return (
@@ -57,22 +57,15 @@ export default function CreateInvoice() {
                         />
                     </div>
 
-                    <div className="space-y-2">
-                        <Label htmlFor="date">Date</Label>
-                        <Input
-                            id="date"
-                            name="date"
-                            type="date"
-                            required
-                            defaultValue={new Date().toISOString().split('T')[0]}
-                        />
-                    </div>
-
-                    <Button type="submit" className="w-full">
+                    <SubmitButton
+                        type="submit"
+                        className="w-full"
+                        pendingText="Creating Invoice..."
+                    >
                         Create Invoice
-                    </Button>
+                    </SubmitButton>
                 </form>
             </main>
         </div>
     );
-} 
+}
